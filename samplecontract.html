@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en"> 
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<!-- <script type="text/javascript" src="js/web3.js"></script> -->
+<script type="text/javascript">
+
+    if (typeof web3 !== 'undefined') {
+        console.log("Already Injected");
+        web3 = new Web3(web3.currentProvider);
+    } else {
+        console.log("Creating new HttpProvider...");
+        // set the provider you want from Web3.providers
+        var HttpProvider1 = "http://localhost:8545";
+        var HttpProvider2 = "http://ropsten.infura.io/";
+        web3 = new Web3(new Web3.providers.HttpProvider(HttpProvider1));
+    }
+
+    // var code = "0x6060604052341561000f57600080fd5b60b18061001d6000396000f300606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063c6888fa1146044575b600080fd5b3415604e57600080fd5b606260048080359060200190919050506078565b6040518082815260200191505060405180910390f35b60006007820290509190505600a165627a7a72305820135ee6fb5adb4cd6dc49feca1b3361c9dc064ca474ef6d71758af47fb688e0cb0029";
+    var code = "60606040526064600055600180556000600255341561001d57600080fd5b600054600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208190555033600360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506000600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff0219169083151502179055506105248061010b6000396000f300606060405260043610610062576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680637ab71b7a14610067578063a21d942f14610094578063a9059cbb146100c1578063c9116b691461011b575b600080fd5b341561007257600080fd5b61007a610144565b604051808215151515815260200191505060405180910390f35b341561009f57600080fd5b6100a7610198565b604051808215151515815260200191505060405180910390f35b34156100cc57600080fd5b610101600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190803590602001909190505061024f565b604051808215151515815260200191505060405180910390f35b341561012657600080fd5b61012e610310565b6040518082815260200191505060405180910390f35b6000600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff16905090565b60008054600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054148015610239575060011515600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff161515145b15610247576001905061024c565b600090505b90565b60006001151561025e83610357565b151514151561026c57600080fd5b81600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254039250508190555081600460008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506001905092915050565b6000600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b60008082600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020540310806103b35750600015156103af61044d565b1515145b806103be5750600082105b806103cb57506000600254115b156103d95760009050610448565b6001600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff021916908315150217905550600260008154809291906001019190505550600190505b919050565b6000806001600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020540310156104a257600090506104f5565b6001600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008282540392505081905550600190505b905600a165627a7a72305820cb82ab39ad32d1c72fb16f0412669d65a87f136f5f96b3f4c61b866b4afa78e10029";
+    // var abi = [{"constant":true,"inputs":[{"name":"a","type":"uint256"}],"name":"multiply","outputs":[{"name":"d","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}];    
+    var abi = [{"constant":true,"inputs":[],"name":"spent","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"checkResult","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_money","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"myBalance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}];
+    
+    var account = web3.eth.accounts[0];
+    var SampleContract = web3.eth.contract(abi);
+    var mycontract;
+
+    function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+    
+    function createNewContract() {
+        console.log("Creating new Contract...");
+        web3.eth.defaultAccount = web3.eth.accounts[0];
+        
+        mycontract = SampleContract.new({from: account, gas: 1000000, data: code}, function(error, receipt){
+        if(error)
+            console.log(error);
+        else{
+            if(receipt.address !== undefined){
+	       console.log("%cYour contract address " + receipt.address, "background: yellow; color: black; font-size: x-large");
+               document.getElementById("logs").innerHTML += "Your contract address " + receipt.address +  "<br/>";
+               }
+            console.log(receipt);
+            console.log("For detailed info https://ropsten.etherscan.io/tx/"+receipt.transactionHash)
+            }
+
+        });  
+    }
+
+    function getContract(){
+        web3.eth.getTransactionReceipt(mycontract.transactionHash,
+        function(error, data){
+            console.log("error " + error);
+            console.log(data);
+        });
+    }
+
+    // Call methods of a contract
+    function callContract(){
+        mycontract.multiply(6, (error, result) => {
+            if(error)
+                console.log(error);
+            else
+                console.log(result.toString());
+        });
+    }
+
+    // Not needed
+    function isAccountLocked() {
+        var fromAcc = account;
+        var toAcc = account;
+        var amt = 0;
+        web3.eth.sendTransaction({
+            from: fromAcc,
+            to: toAcc,
+            value: amt
+        },function(error, hash){
+            console.log("error " + error);
+            console.log("hash " + hash);
+        });
+    }
+
+    // Display Balance
+    function getBalance(){
+        web3.eth.getBalance(web3.eth.defaultAccount, (error, result) => {
+            if(error)
+                console.log(error);
+            else{
+                console.log(result);
+                console.log("balance[web3.eth.defaultAccount]="+result.toString());
+                document.getElementById("logs").innerHTML += "Balance[" + web3.eth.defaultAccount + "] = " + result.toString() + " wei" +  "<br />";
+		console.log("%c"+"Balance " + result.toString() + " Gwei", "background: red; color: yellow; font-size: x-large");
+
+            }
+        });
+    }
+
+    function updateAbi(){
+        abi = JSON.parse(document.getElementById("abi").value.toString());
+    }
+    function updateCode(){
+        code = "0x" + document.getElementById("code").value.toString();
+    }
+    function checkResult(){
+        mycontract.checkResult((error, d)=> {
+            if(!error){
+                if(d == true){
+                    console.log("%cFlag_Captured", "background: black; color: white; font-size: x-large");
+                    alert("Flag Captured !!!");
+                }else
+                    console.log("%c!Flag_Captured", "background: black; color: white; font-size: x-large");
+                
+            }else
+                console.log(error);
+        })
+    }
+
+</script>
+</head>
+<body>
+    <h1>Question 1.3</h1>
+    <div id="problem">The idea is to spend without spending !!! Isn't it cool.</div>
+    <div id="procedure">
+    0. Open Browser's Javascript Console<br/>
+    1. Create a new contract [Button], The contract will be deployed on ROPSTEN TESTNET<br/>
+    2. You got the contract address, now hack it<br/>
+    3. Check if You Won [Button]</div>
+    Note: You can also interect with the contract via mycontract in console.
+    <!-- <label>abi (without quote):</label>
+    <input type="text" id="abi" onchange="updateAbi();"/> <br/>
+    <label>byte code:</label>
+    <input type="text" id="code" onchange="updateCode();"/> -->
+    <script src="https://gist.github.com/ketankr9/b0f0f969b0a7f8871c5723f6a671965a.js"></script>
+    <div id="status"></div>
+    <button type="button" onClick="createNewContract();">Get New Contract Instance</button>
+    <!-- <div id="result"></div> -->
+    <button type="button" onclick="getBalance();">Get Balance</button>
+    <!-- <br/> -->
+    <!-- <hr/> -->
+    <button type="test/javascript" onclick="checkResult();" >Check if You Won</button>
+    <hr/>
+    <div id="logs"></div>
+</body>
+</html>
